@@ -194,27 +194,26 @@
     } catch (e) { cb(); }
   }
 
-  // ─── Envío ───
-  function send() {
-    data.time_on_page = (Date.now() - data.timestamp) / 1000;
-    try {
-      var payload = JSON.stringify(data);
-      // Usamos sendBeacon si está disponible, si no fetch
-      if (navigator.sendBeacon) {
-        var blob = new Blob([payload], { type: "application/json" });
-        navigator.sendBeacon(WEBHOOK_URL, blob);
-      } else {
-        fetch(WEBHOOK_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: payload
-        }).catch(function () {});
-      }
-    } catch (e) {
-      console.warn("[tracker] error al enviar", e);
+// ─── Envío ───
+function send() {
+  data.time_on_page = (Date.now() - data.timestamp) / 1000;
+  var payload = JSON.stringify(data);
+  try {
+    if (navigator.sendBeacon) {
+      // text/plain evita preflight CORS
+      var blob = new Blob([payload], { type: "text/plain;charset=UTF-8" });
+      navigator.sendBeacon(WEBHOOK_URL, blob);
+    } else {
+      // fetch sin headers custom, sin no-cors
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        body: payload
+      }).catch(function () {});
     }
+  } catch (e) {
+    console.warn("[tracker] error al enviar", e);
   }
+}
 
   // ─── Flujo: batería → webrtc → enviar ───
   tryBattery(function () {

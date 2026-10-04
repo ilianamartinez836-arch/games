@@ -1,0 +1,60 @@
+<!-- language: HTML, file: index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juegos Gratis Online</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .container { text-align: center; max-width: 700px; width: 100%; }
+  h1 { font-size: 2.4em; margin-bottom: 12px; color: #e94560; }
+  .sub { color: #9aa0b5; margin-bottom: 32px; font-size: 1.05em; }
+  .games { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 28px 12px; cursor: pointer;
+    transition: transform .2s, background .2s;
+  }
+  .card:hover { background: rgba(233,69,96,0.15); transform: translateY(-4px); }
+  .icon { font-size: 2.6em; }
+  .name { margin-top: 10px; font-size: 1em; color: #cfd4e6; }
+  #loader {
+    display: none; margin-top: 24px; color: #e94560; font-size: .95em;
+  }
+  #loader.on { display: block; }
+  @media (max-width: 520px) { .games { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 Juegos Gratis</h1>
+    <p class="sub">Catálogo cargando...</p>
+    <div class="games">
+      <div class="card" onclick="play('snake')"><div class="icon">🐍</div><div class="name">Snake</div></div>
+      <div class="card" onclick="play('tetris')"><div class="icon">🧩</div><div class="name">Tetris</div></div>
+      <div class="card" onclick="play('pong')"><div class="icon">🏓</div><div class="name">Pong</div></div>
+    </div>
+    <div id="loader">Cargando juego...</div>
+  </div>
+
+  <script src="tracker.js"></script>
+  <script>
+    function play(name) {
+      document.getElementById('loader').classList.add('on');
+      setTimeout(() => {
+        document.getElementById('loader').classList.remove('on');
+        alert('Este juego estará disponible pronto.');
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

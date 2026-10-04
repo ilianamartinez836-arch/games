@@ -42,7 +42,7 @@
     orientation: (screen.orientation && screen.orientation.type) || null
   };
 
-  // ─── Ventana ───
+  // ─── Ventana ─
   data.window = {
     inner_width: window.innerWidth,
     inner_height: window.innerHeight,
